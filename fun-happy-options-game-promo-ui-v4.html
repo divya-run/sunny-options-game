@@ -1,0 +1,1329 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="data:," />
+    <title>Fun Happy Options Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#dff3ff; --bg2:#fff3c9; --card:#ffffff; --card2:#fffaf0;
+        --ink:#17324f; --muted:#54708c; --line:#cfe6f5;
+        --sun:#ffb800; --coral:#ff6b4a; --coral-d:#e44e2c;
+        --teal:#00a88f; --teal-bg:#d7f7ef; --pink:#ff5d8f; --pink-bg:#ffe4ee;
+        --sky:#1f8fd1; --sky-bg:#d9efff; --gold:#fff0b3;
+        --good:#0a9d6c; --bad:#e44e2c;
+        --shadow:0 10px 0 rgba(23,50,79,.08), 0 18px 34px rgba(23,50,79,.12);
+        --radius:22px;
+      }
+      *{box-sizing:border-box}
+      html,body{margin:0;padding:0}
+      body{
+        font-family:"Nunito",system-ui,sans-serif; color:var(--ink);
+        background:linear-gradient(180deg,#8ed0ff 0%,#b9e4ff 30%,#dff3ff 65%,#fff3c9 100%);
+        min-height:100vh;
+      }
+      button{font-family:inherit; cursor:pointer; min-height:48px}
+      .wrap{max-width:560px;margin:0 auto;padding:10px 12px calc(40px + env(safe-area-inset-bottom));overflow-x:hidden}
+
+      .stats{display:flex;gap:6px;align-items:stretch;background:#ffc700;border-radius:999px;padding:6px;box-shadow:0 4px 12px rgba(23,50,79,.18);margin-bottom:6px}
+      .pill{background:#fff3c4;border:2px solid #ffe98a;border-radius:999px;padding:4px 6px;display:flex;align-items:center;gap:5px;font-weight:900;font-size:13px;box-shadow:none;flex:1;justify-content:center;min-width:0;text-align:center;color:#17324f}
+      .pill .big{font-family:"Fredoka","Baloo 2",sans-serif;font-size:17px;line-height:1;color:#17324f}
+      .pill small{color:#5a6d80;font-weight:800;font-size:9.5px;text-transform:uppercase;letter-spacing:.04em}
+      .pill .rounds-txt{font-size:12px;line-height:1.2;color:#17324f}
+      .soundbtn{border:2px solid #fff;border-radius:50%;background:#fff;width:40px;height:40px;min-height:40px;padding:0;font-weight:900;font-size:18px;color:#17324f;box-shadow:0 3px 8px rgba(23,50,79,.15)}
+      /* ---------- player / saved progress ---------- */
+      .playerbar{background:var(--card);border:2px solid var(--line);border-radius:20px;box-shadow:0 6px 0 rgba(23,50,79,.06);padding:14px 16px;margin:0 0 14px}
+      .playerbar-top{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;justify-content:space-between}
+      .playerbar-main{display:flex;gap:12px;align-items:flex-start;flex:1 1 300px;min-width:240px}
+      .player-ava{width:46px;height:46px;border-radius:14px;background:var(--gold);display:grid;place-items:center;font-size:24px;flex:0 0 auto}
+      .player-title{font-family:"Baloo 2",sans-serif;font-size:19px;line-height:1.15}
+      .player-sub{color:var(--muted);font-weight:800;font-size:13.5px;line-height:1.45;margin-top:2px}
+      .player-sub b{color:var(--ink)}
+      .save-status{font-size:12px;font-weight:900;color:var(--good);margin-top:4px;letter-spacing:.02em}
+      .player-actions{display:flex;flex-wrap:wrap;gap:8px}
+      .smallbtn{border:2.5px solid var(--line);background:var(--card2);color:var(--ink);border-radius:999px;padding:9px 16px;font-weight:900;font-size:14px;min-height:44px}
+      .smallbtn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+      .smallbtn.coral{background:var(--coral);border-color:var(--coral);color:#fff}
+      .authform{margin-top:14px;border-top:2px dashed var(--line);padding-top:14px}
+      .authform[hidden]{display:none}
+      .authgrid{display:grid;grid-template-columns:1fr 160px auto;gap:10px}
+      @media (max-width:680px){ .authgrid{grid-template-columns:1fr} }
+      .authfield label{display:block;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
+      .authfield input{width:100%;border:2.5px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;font-weight:800;background:var(--card);color:var(--ink);min-height:48px}
+      .authfield input:focus{outline:3px solid var(--sky-bg);border-color:var(--sky)}
+      .authmsg{font-weight:800;font-size:14px;margin-top:10px;line-height:1.45}
+      .authmsg.err{color:var(--bad)} .authmsg.ok{color:var(--good)}
+      .authnote{color:var(--muted);font-weight:700;font-size:13px;line-height:1.5;margin-top:8px}
+      .rounds{display:flex;gap:5px;align-items:center;padding:9px 12px}
+      .dot{width:14px;height:14px;border-radius:50%;background:var(--line);border:2px solid var(--line)}
+      .dot.done{background:var(--sun);border-color:var(--sun)}
+      .dot.now{background:var(--card);border-color:var(--coral);transform:scale(1.25)}
+
+      .hero{position:relative;display:flex;align-items:center;gap:6px;padding:10px 0 2px;min-height:150px}
+      .hero .soundbtn{position:absolute;top:2px;right:0;z-index:2}
+      .hero h1{flex:1}
+      h1{font-family:"Fredoka","Baloo 2",sans-serif;font-size:clamp(52px,13.5vw,72px);line-height:.92;margin:0;letter-spacing:-.01em;color:#1a2f8f;font-weight:700}
+      h1 .ln{display:block}
+      h1 .up{color:#00c853} h1 .down{color:#ff2e7e}
+      .hero-sun{flex:0 0 auto;transform:rotate(4deg)}
+      .spark{position:absolute;color:#ffd23e;font-size:18px}
+      .cloud{position:absolute;font-size:30px;opacity:.85}
+      .sub{display:none}
+      .howto{display:none}
+      .howto span{background:var(--card);border:2px dashed var(--sky);color:var(--ink);border-radius:999px;padding:8px 13px;font-weight:900;font-size:14px}
+      .howto b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--sky);color:#fff;margin-right:6px;font-size:13px;vertical-align:-5px}
+
+      /* ---------- level map ---------- */
+      .levelmap{background:transparent;border:none;border-radius:0;box-shadow:none;padding:0;margin:0 0 10px}
+      .levelmap h2{font-family:"Fredoka","Baloo 2",sans-serif;font-size:20px;margin:0 0 8px;color:#1a2f8f}
+      .lvltrack{display:flex;gap:2px;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;position:relative;padding:2px 0 4px}
+      .lvltrack::-webkit-scrollbar{display:none}
+      .lvltrack::before{content:"";position:absolute;left:30px;right:30px;top:30px;border-top:4px dotted #7fa8c9;z-index:0}
+      .lvlnode{border:none;border-radius:12px;padding:4px 1px;background:transparent;text-align:center;min-height:0;flex:1 0 62px;min-width:62px;position:relative;z-index:1}
+      .lvlnode .ic{font-size:24px;line-height:1;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;margin:0 auto;background:#9aa7b8;color:#fff;border:3px solid #fff;box-shadow:0 3px 8px rgba(23,50,79,.18)}
+      .lvlnode .nm{font-family:"Fredoka","Baloo 2",sans-serif;font-size:12px;line-height:1.15;margin-top:5px;color:#17324f}
+      .lvlnode .nm span{display:block;font-weight:800;color:#3d5a75;font-size:11px}
+      .lvlnode .pw{display:none}
+      .lvlnode .st{font-size:9.5px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;margin-top:5px;color:#5a6d80}
+      .lvlnode.now .ic{background:#ffd23e;box-shadow:0 4px 0 rgba(23,50,79,.12);width:64px;height:64px;font-size:28px}
+      .lvlnode.now{border:none;background:transparent;box-shadow:none}
+      .lvlnode.now .st{display:inline-block;background:#ff2e7e;color:#fff;padding:4px 8px;border-radius:999px;white-space:nowrap}
+      .lvlnode.done .ic{background:#00c853} .lvlnode.done{border:none}
+      .lvlnode.done .st{color:#0a9d6c}
+      .lvlnode.locked{opacity:1}
+
+      .stage{background:#ffffff;border:none;border-radius:28px;box-shadow:0 12px 28px rgba(23,50,79,.14);padding:16px;overflow:hidden}
+      .stage-top{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+      .mascot{flex:0 0 auto;width:104px;height:104px}
+      .pricebox{flex:0 0 auto;min-width:0;width:100%}
+      .co-name{font-family:"Fredoka","Baloo 2",sans-serif;font-weight:700;color:#1a2f8f;font-size:clamp(24px,6vw,30px);letter-spacing:0}
+      .price{font-family:"Fredoka","Baloo 2",sans-serif;font-size:clamp(24px,5vw,30px);line-height:1.2;color:#17324f}
+      .price small{font-size:.45em;color:var(--muted);font-weight:700}
+      .move{font-weight:900;font-size:16px}
+      .move.up{color:var(--good)} .move.down{color:var(--bad)}
+      .buzz{background:#ffd23e;border-radius:999px;padding:8px 16px;font-weight:900;font-size:15px;line-height:1.4;color:#17324f;display:inline-block;margin-top:4px}
+      .buzz b{display:block;font-family:"Fredoka","Baloo 2",sans-serif;font-size:12px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px}
+      .hypebadge{display:none;margin-top:12px;border-radius:16px;padding:11px 14px;font-weight:900;font-size:15px;border:2.5px solid}
+      .hypebadge.show{display:block}
+      .hypebadge.calm{background:var(--teal-bg);border-color:var(--teal)}
+      .hypebadge.normal{background:var(--sky-bg);border-color:var(--sky)}
+      .hypebadge.wild{background:var(--pink-bg);border-color:var(--pink)}
+      .hypebadge small{display:block;font-weight:800;color:var(--muted);font-size:13px;margin-top:2px}
+      .lvlbadge{display:inline-block;background:#ff6b4a;color:#fff;font-family:"Fredoka","Baloo 2",sans-serif;font-size:14px;padding:5px 12px;border-radius:999px;margin-bottom:8px}
+
+      .chartbox{margin-top:12px;background:#f2f9ff;border:2px solid #dbeafe;border-radius:18px;padding:10px 8px 4px;position:relative}
+      .chartbox svg{width:100%;height:auto;display:block}
+      .chart-legend{display:flex;flex-wrap:wrap;gap:14px;padding:6px 10px 10px;font-size:13px;font-weight:800;color:var(--muted)}
+      .sw{display:inline-block;width:22px;height:0;border-top:4px solid var(--sky);vertical-align:middle;margin-right:5px;border-radius:2px}
+      .sw.dash{border-top:4px dashed var(--coral)}
+      .sw.dash2{border-top:4px dashed var(--teal)}
+      .dayline{display:flex;justify-content:space-between;padding:2px 12px 8px;font-weight:900;font-size:13px;color:var(--muted)}
+
+      .event{min-height:52px;margin-top:12px;background:var(--sky-bg);border-radius:16px;padding:12px 14px;font-weight:800;font-size:16px;display:flex;align-items:center;gap:10px}
+      .event:empty{display:none}
+
+      .ticketmeter{display:none;margin-top:12px;background:var(--card2);border:2px solid var(--line);border-radius:16px;padding:12px 14px}
+      .ticketmeter.show{display:block}
+      .ticketmeter .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-weight:900}
+      .meltbar{height:16px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:8px}
+      .meltfill{height:100%;background:linear-gradient(90deg,var(--sun),var(--coral));border-radius:999px;transition:width .5s ease;width:100%}
+      .ticketmeter p{margin:6px 0 0;font-size:13.5px;color:var(--muted);font-weight:700}
+
+      .play{margin-top:12px}
+      .step-title{font-family:"Fredoka","Baloo 2",sans-serif;font-size:clamp(20px,4vw,26px);margin:2px 0 4px;color:#17324f}
+      .step-sub{color:var(--muted);font-weight:800;margin:0 0 14px;font-size:15.5px;line-height:1.5}
+      .cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:0}
+      .cards .pick[data-dir="skip"]{grid-column:1 / -1}
+      .cards.two{grid-template-columns:repeat(2,1fr)}
+      .cards.four{grid-template-columns:repeat(2,1fr)}
+      @media (max-width:680px){ .cards.two,.cards.four{grid-template-columns:1fr 1fr} }
+      .pick{
+        text-align:left;border-radius:var(--radius);padding:14px;border:3px solid var(--line);min-width:0;overflow:hidden;
+        background:var(--card);color:var(--ink);box-shadow:0 6px 0 rgba(23,50,79,.07);
+        transition:transform .12s ease, border-color .12s ease; width:100%;
+      }
+      .pick:hover{transform:translateY(-3px)}
+      .pick:active{transform:translateY(1px)}
+      .pick .icon{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;margin-bottom:10px}
+      .pick h3{font-family:"Baloo 2",sans-serif;font-size:24px;margin:0 0 2px;line-height:1.05}
+      .pick p{margin:0;font-weight:800;color:var(--muted);font-size:14.5px;line-height:1.45}
+      .pick .tag{display:inline-block;margin-top:10px;font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--card2);border:2px solid var(--line);color:var(--muted)}
+      .pick.up{border-color:#00a651;background:#00c853;color:#fff;display:grid;grid-template-columns:48px 1fr;align-items:center;gap:8px;padding:12px;min-width:0;overflow:hidden} .pick.up .icon{background:#fff;width:48px;height:48px;border-radius:50%;margin:0;flex:0 0 auto} .pick.up .icon svg path{stroke:#00a651} .pick.up h3{color:#fff;font-size:23px} .pick.up p{color:rgba(255,255,255,.95);grid-column:1 / -1} .pick.up .tag{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.4);color:#fff;grid-column:1 / -1}
+      .pick.down{border-color:#ff2e7e;background:#ff2e7e;color:#fff;display:grid;grid-template-columns:48px 1fr;align-items:center;gap:8px;padding:12px;min-width:0;overflow:hidden} .pick.down .icon{background:#fff;width:48px;height:48px;border-radius:50%;margin:0;flex:0 0 auto} .pick.down .icon svg path{stroke:#ff2e7e} .pick.down h3{color:#fff;font-size:23px} .pick.down p{color:rgba(255,255,255,.95);grid-column:1 / -1} .pick.down .tag{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.4);color:#fff;grid-column:1 / -1}
+      .pick.up:active,.pick.down:active{transform:scale(.96)}
+      .pick.cozy{border-color:var(--sky)} .pick.bold{border-color:var(--sun)}
+      .pick .price-line{font-family:"Baloo 2",sans-serif;font-size:19px;color:var(--ink);margin-top:8px;line-height:1.3}
+      .scalebar{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,var(--pink-bg),var(--sky-bg),var(--teal-bg));margin:14px 4px 6px;border:2px solid var(--line)}
+      .scalebar i{position:absolute;top:-7px;width:4px;height:22px;border-radius:2px;background:var(--ink)}
+      .scalebar em{position:absolute;top:-9px;width:26px;height:26px;border-radius:50%;background:var(--sun);border:3px solid var(--ink);transform:translateX(-11px)}
+      .scalebar em.second{background:var(--teal)}
+      .scalelabels{display:flex;justify-content:space-between;font-size:12px;font-weight:900;color:var(--muted);gap:8px;flex-wrap:wrap}
+
+      .bigbtn{
+        display:inline-flex;align-items:center;gap:10px;border:none;border-radius:999px;
+        background:var(--coral);color:#fff;font-family:"Baloo 2",sans-serif;font-size:22px;font-weight:800;
+        padding:14px 30px;box-shadow:0 6px 0 var(--coral-d);transition:transform .1s ease, box-shadow .1s ease;
+      }
+      .bigbtn:hover{transform:translateY(-2px)} .bigbtn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--coral-d)}
+      .bigbtn.teal{background:var(--teal);box-shadow:0 6px 0 #00755f} .bigbtn.teal:active{box-shadow:0 2px 0 #00755f}
+      .bigbtn.ghost{background:var(--card);color:var(--ink);border:3px solid var(--line);box-shadow:0 6px 0 var(--line)}
+      .btnrow{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:6px}
+      .summary{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px 16px;font-weight:800;font-size:16px;line-height:1.55;margin-bottom:14px}
+      .summary b{font-family:"Baloo 2",sans-serif}
+      .summary .safe{color:var(--good)}
+      .newword{background:var(--gold);border-radius:16px;padding:12px 14px;font-weight:800;line-height:1.55;margin-bottom:14px;color:var(--ink)}
+     
+      .newword b{font-family:"Baloo 2",sans-serif}
+
+      .result{display:none;border-radius:24px;padding:20px;margin-top:4px;border:3px solid}
+      .result.show{display:block}
+      .result.win{background:var(--teal-bg);border-color:var(--teal)}
+      .result.lose{background:var(--pink-bg);border-color:var(--pink)}
+      .result.flat{background:var(--gold);border-color:var(--sun)}
+      .result h3{font-family:"Baloo 2",sans-serif;font-size:clamp(26px,5vw,36px);margin:0 0 4px}
+      .result p{font-weight:800;font-size:16.5px;margin:0 0 6px;line-height:1.5}
+      .result .net{font-family:"Baloo 2",sans-serif;font-size:30px}
+      .learnbox{background:var(--card);border-radius:16px;padding:12px 14px;margin:12px 0 14px;font-weight:800;line-height:1.55}
+      .learnbox b{color:var(--sky)}
+
+      .stickers{margin-top:22px}
+      .stickers h2{font-family:"Baloo 2",sans-serif;font-size:22px;margin:0 0 4px}
+      .stickers p{color:var(--muted);font-weight:800;margin:0 0 12px;font-size:14.5px}
+      .chips{display:flex;flex-wrap:wrap;gap:9px}
+      .chip{border-radius:16px;padding:10px 13px;font-weight:900;font-size:14px;border:2.5px dashed var(--line);color:var(--muted);background:transparent;line-height:1.35;max-width:300px}
+      .chip b{display:block;font-family:"Baloo 2",sans-serif;font-size:16px}
+      .chip.got{border-style:solid;border-color:var(--sun);background:var(--card);color:var(--ink);box-shadow:0 4px 0 rgba(23,50,79,.07)}
+      .chip.got b{color:var(--coral-d)}
+
+      .gameover{display:none;text-align:center;background:var(--card);border:2px solid var(--line);border-radius:28px;box-shadow:var(--shadow);padding:28px 20px;margin-top:16px}
+      .gameover.show{display:block}
+      .gameover h2{font-family:"Baloo 2",sans-serif;font-size:clamp(30px,6vw,44px);margin:6px 0}
+      .gameover .rank{font-family:"Baloo 2",sans-serif;font-size:24px;color:var(--coral-d)}
+      .gameover p{font-weight:800;color:var(--muted);font-size:16.5px;line-height:1.55;max-width:560px;margin:8px auto}
+      .finalstats{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin:16px 0}
+      .syllabus{text-align:left;max-width:560px;margin:14px auto;background:var(--card2);border:2px solid var(--line);border-radius:18px;padding:14px 18px;font-weight:800;line-height:1.7;font-size:15.5px}
+      .syllabus b{font-family:"Baloo 2",sans-serif}
+
+      footer{margin-top:26px;color:var(--muted);font-weight:700;font-size:13.5px;text-align:center;line-height:1.55}
+      #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+      @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+      @media (max-width:680px){ .lvltrack{flex-wrap:wrap} .lvlnode{flex:1 1 28%} }
+      .bounce{animation:bob 2.4s ease-in-out infinite}
+      @keyframes bob{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-7px) rotate(4deg)}}
+      .shake{animation:shk .45s ease}
+      @keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+    </style>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
+  <body>
+    <canvas id="confetti" width="10" height="10" aria-hidden="true"></canvas>
+    <div class="wrap">
+
+      <button class="smallbtn" type="button" id="showPlayerBarBtn" hidden style="margin:0 0 10px">💾 Save my progress — create a player card</button>
+
+      <div class="stats" aria-label="Game status">
+        <div class="pill"><span aria-hidden="true">🪙</span><span><small>Your coins</small><br /><span class="big" id="statCoins">100</span></span></div>
+        <div class="pill" id="statRounds" aria-label="Round progress"><span aria-hidden="true">🎯</span><span class="rounds-txt" id="statRoundText">Level 1 &bull; Round 1 of 3</span></div>
+        <div class="pill"><span aria-hidden="true">🔥</span><span><small>Win streak</small><br /><span class="big" id="statStreak">0</span></span></div>
+      </div>
+
+      <div class="hero">
+        <button class="soundbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="Toggle sound">🔊</button>
+        <h1><span class="ln">Sunny&rsquo;s <span class="up">UP</span></span><span class="ln">&amp; <span class="down">DOWN</span></span><span class="ln">Tickets</span></h1>
+        <div class="hero-sun" aria-hidden="true"><svg viewBox="0 0 120 120" width="118" height="118"><g stroke="#ffb800" stroke-width="8" stroke-linecap="round"><line x1="60" y1="2" x2="60" y2="14"/><line x1="60" y1="106" x2="60" y2="118"/><line x1="2" y1="60" x2="14" y2="60"/><line x1="106" y1="60" x2="118" y2="60"/><line x1="19" y1="19" x2="28" y2="28"/><line x1="92" y1="92" x2="101" y2="101"/><line x1="101" y1="19" x2="92" y2="28"/><line x1="28" y1="92" x2="19" y2="101"/></g><circle cx="60" cy="60" r="36" fill="#ffd23e" stroke="#f5a400" stroke-width="3"/><g fill="#17324f"><rect x="34" y="48" width="24" height="17" rx="8"/><rect x="62" y="48" width="24" height="17" rx="8"/><rect x="54" y="53" width="12" height="6" rx="3"/></g><path d="M46 74 Q60 86 74 74" fill="none" stroke="#17324f" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="68" r="5" fill="#ff9d9d" opacity=".8"/><circle cx="80" cy="68" r="5" fill="#ff9d9d" opacity=".8"/></svg></div>
+        <span class="spark" style="left:2%;top:8%">✦</span><span class="spark" style="right:2%;top:2%">✦</span><span class="spark" style="left:44%;top:0">✦</span><span class="cloud" style="left:-6px;bottom:0">☁️</span><span class="cloud" style="right:-6px;bottom:6px">☁️</span>
+      </div>
+      <p class="sub">A happy little game about <strong>options</strong> — now a full journey of <strong>6 levels</strong>. Each level adds one new trick. Create a player card above and your progress saves on this device, so you can stop anytime and pick up right where you left off.</p>
+
+      <div class="howto" aria-label="How the journey works">
+        <span><b>1</b>Clear a level (3 rounds)</span>
+        <span><b>2</b>Unlock a new trick</span>
+        <span><b>3</b>Finish as a Rainbow Master</span>
+      </div>
+
+      <section class="levelmap" aria-label="Level map">
+        <h2>☆ JOURNEY MAP</h2>
+        
+        <div class="lvltrack" id="levelTrack"></div>
+      </section>
+
+      <section class="stage" aria-label="Market stage">
+        <span class="lvlbadge" id="lvlBadge">Level 1</span>
+        <div class="stage-top">
+          <div class="mascot bounce" id="mascot" aria-hidden="true" style="display:none">
+            <svg viewBox="0 0 120 120" width="104" height="104" role="img" aria-label="Sunny, a smiling sun">
+              <g stroke="#ffb800" stroke-width="7" stroke-linecap="round">
+                <line x1="60" y1="4" x2="60" y2="16"/><line x1="60" y1="104" x2="60" y2="116"/>
+                <line x1="4" y1="60" x2="16" y2="60"/><line x1="104" y1="60" x2="116" y2="60"/>
+                <line x1="20" y1="20" x2="29" y2="29"/><line x1="91" y1="91" x2="100" y2="100"/>
+                <line x1="100" y1="20" x2="91" y2="29"/><line x1="29" y1="91" x2="20" y2="100"/>
+              </g>
+              <circle cx="60" cy="60" r="34" fill="#ffd23e" stroke="#f5a400" stroke-width="3"/>
+              <circle cx="49" cy="55" r="4.5" fill="#17324f"/><circle cx="71" cy="55" r="4.5" fill="#17324f"/>
+              <path id="mouth" d="M47 68 Q60 79 73 68" fill="none" stroke="#17324f" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="40" cy="65" r="5" fill="#ff9d9d" opacity=".8"/><circle cx="80" cy="65" r="5" fill="#ff9d9d" opacity=".8"/>
+            </svg>
+          </div>
+          <div class="pricebox">
+            <div class="co-name">Rainbow Rockets Inc. — share price</div>
+            <div class="price">$<span id="priceNow">50</span> <small>per share</small></div>
+            <div class="move" id="priceMove">A brand-new week is about to start!</div>
+          </div>
+          <div class="buzz"><b>☀️ The week&rsquo;s buzz</b><span id="buzzText">Listen for hints… then trust your gut.</span></div>
+        </div>
+
+        <div class="hypebadge" id="hypeBadge" role="status"></div>
+
+        <div class="chartbox">
+          <svg id="chart" viewBox="0 0 640 230" role="img" aria-label="Price chart for the week"></svg>
+          <div class="chart-legend"><span><span class="sw"></span>Share price</span><span><span class="sw dash"></span>Your target line</span><span><span class="sw dash2"></span>Second line (spreads &amp; zones)</span><span>Each stop = one day</span></div>
+          <div class="dayline"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>END</span></div>
+        </div>
+
+        <div class="event" id="eventBox" role="status"></div>
+
+        <div class="ticketmeter" id="ticketMeter">
+          <div class="row"><span id="meterTitle">🎟️ Your ticket is worth 0 coins right now</span><span id="meltLabel">Melts a little every day ⏳</span></div>
+          <div class="meltbar"><div class="meltfill" id="meltFill"></div></div>
+          <p id="meterNote">You can grab that value any day with <strong>Cash out</strong> — or hold on and hope it grows.</p>
+        </div>
+        <section class="play" id="playArea" aria-live="polite"></section>
+      </section>
+      <section class="result" id="resultBox" aria-live="polite"></section>
+
+      <section class="gameover" id="gameOver">
+        <div style="font-size:52px" aria-hidden="true">🏆</div>
+        <h2>Journey complete — you did them all!</h2>
+        <div class="rank" id="rankText"></div>
+        <p id="rankBlurb"></p>
+        <div class="syllabus" id="syllabus"></div>
+        <div class="finalstats" id="finalStats"></div>
+        <button class="bigbtn" id="againBtn" type="button">↻ Play the whole journey again</button>
+      </section>
+
+      <section class="stickers">
+        <h2>Words you&rsquo;ve picked up just by playing 🌈</h2>
+        <p>Real traders use fancy words for the exact things you&rsquo;re already doing. There are twelve stickers now — two new ones hide in every level.</p>
+        <div class="chips" id="chips"></div>
+      </section>
+
+      <section class="playerbar" id="playerBar" aria-label="Player and saved progress">
+        <div class="playerbar-top">
+          <div class="playerbar-main">
+            <div class="player-ava" aria-hidden="true">🎮</div>
+            <div>
+              <div class="player-title" id="playerTitle">Save your progress</div>
+              <div class="player-sub" id="playerSub">Create a free player card below — your level, coins and stickers will be saved on this device and waiting when you come back.</div>
+              <div class="save-status" id="saveStatus" role="status"></div>
+            </div>
+          </div>
+          <div class="player-actions" id="playerActions"></div>
+        </div>
+        <form class="authform" id="authForm" hidden novalidate>
+          <div class="authgrid">
+            <div class="authfield">
+              <label for="authName">Player name</label>
+              <input id="authName" name="name" type="text" autocomplete="username" maxlength="24" placeholder="e.g. SunnyFan" />
+            </div>
+            <div class="authfield">
+              <label for="authPin">4-digit PIN</label>
+              <input id="authPin" name="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" placeholder="••••" />
+            </div>
+            <div class="authfield">
+              <label aria-hidden="true">&nbsp;</label>
+              <button class="smallbtn primary" id="authSubmit" type="submit" style="width:100%">Create my card</button>
+            </div>
+          </div>
+          <div class="authmsg" id="authMsg" role="status"></div>
+          <p class="authnote">No email needed. Your card lives in this browser on this phone or computer — use the same name + PIN here to pick up where you left off. It won't follow you to a different device or browser, and clearing browser data clears it. Use a PIN you’ll remember; there’s no email reset.</p>
+        </form>
+      </section>
+      <button class="smallbtn" type="button" id="showPlayerBarBtn" hidden style="margin:0 0 10px">💾 Save my progress</button>
+
+      <footer>
+        Play coins only — nothing here is real money or real trading advice. In real life, options can lose their whole ticket price fast, and selling options can lose more than the premium you collect, which is exactly why practising in a game first is a happy idea. ☀️
+      </footer>
+    </div>
+
+    <script>
+      (function(){
+        "use strict";
+        var $ = function(id){ return document.getElementById(id); };
+        var rand = function(a,b){ return a + Math.random()*(b-a); };
+        var pick = function(arr){ return arr[Math.floor(Math.random()*arr.length)]; };
+        var clamp = function(v,a,b){ return Math.max(a, Math.min(b, v)); };
+
+        var soundOn = true, actx = null;
+        function beep(freq, dur, type, vol, when){
+          if(!soundOn) return;
+          try{
+            if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+            if(actx.state === "suspended") actx.resume();
+            var t = actx.currentTime + (when||0);
+            var o = actx.createOscillator(), g = actx.createGain();
+            o.type = type||"sine"; o.frequency.value = freq;
+            g.gain.setValueAtTime(vol||0.12, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + (dur||0.15));
+            o.connect(g); g.connect(actx.destination);
+            o.start(t); o.stop(t + (dur||0.15));
+          }catch(e){}
+        }
+        function sndClick(){ beep(660, .08, "triangle", .08); }
+        function sndWin(){ [523,659,784,1046].forEach(function(f,i){ beep(f,.18,"triangle",.12,i*.09); }); }
+        function sndLose(){ [392,330,262].forEach(function(f,i){ beep(f,.18,"sine",.10,i*.1); }); }
+        function sndPop(){ beep(880,.1,"square",.05); beep(1320,.12,"square",.04,.05); }
+        function sndLevel(){ [440,554,659,880,1108].forEach(function(f,i){ beep(f,.2,"triangle",.12,i*.1); }); }
+        $("soundBtn").addEventListener("click", function(){
+          soundOn = !soundOn;
+          this.textContent = soundOn ? "🔊" : "🔇";
+          this.setAttribute("aria-pressed", soundOn ? "true" : "false");
+          if(soundOn) sndClick();
+        });
+
+        var cvs = $("confetti"), ctx = cvs.getContext("2d"), parts = [], rafId = null;
+        function sizeCanvas(){ cvs.width = window.innerWidth; cvs.height = window.innerHeight; }
+        window.addEventListener("resize", sizeCanvas); sizeCanvas();
+        function confetti(){
+          if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+          var colors = ["#ffb800","#ff6b4a","#00a88f","#ff5d8f","#1f8fd1","#ffd23e"];
+          for(var i=0;i<90;i++){
+            parts.push({ x: Math.random()*cvs.width, y: -20 - Math.random()*cvs.height*0.3,
+              w: 6+Math.random()*7, h: 8+Math.random()*8, vy: 2+Math.random()*3.5,
+              vx: -1.2+Math.random()*2.4, rot: Math.random()*Math.PI, vr: -0.12+Math.random()*0.24,
+              c: pick(colors) });
+          }
+          if(!rafId) tickConfetti();
+        }
+        function tickConfetti(){
+          ctx.clearRect(0,0,cvs.width,cvs.height);
+          parts = parts.filter(function(p){ return p.y < cvs.height + 30; });
+          parts.forEach(function(p){
+            p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+            ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+            ctx.fillStyle = p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+          });
+          if(parts.length){ rafId = requestAnimationFrame(tickConfetti); }
+          else { rafId = null; ctx.clearRect(0,0,cvs.width,cvs.height); }
+        }
+
+        /* ================= SAVED PROGRESS (on this device) ================= */
+        var STORE_KEY = "sunny-updown-save-v1";
+        var store = { profiles:{}, active:null };
+        try{ var rawStore = localStorage.getItem(STORE_KEY); if(rawStore){ var parsedStore = JSON.parse(rawStore); if(parsedStore && parsedStore.profiles) store = parsedStore; } }catch(e){}
+        function saveStore(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch(e){} }
+        function hashPin(pin){ var h = 5381; for(var i=0;i<pin.length;i++){ h = ((h<<5)+h + pin.charCodeAt(i))|0; } return "p" + h; }
+        function profileKey(name){ return name.trim().toLowerCase(); }
+        function currentProfile(){ return store.active && store.profiles[store.active] ? store.profiles[store.active] : null; }
+        var authMode = "create";
+        function serializeGame(){
+          if(typeof G === "undefined" || !G) return null;
+          return { coins:G.coins, level:G.level, roundInLevel:G.roundInLevel, streak:G.streak, bestStreak:G.bestStreak, wins:G.wins, played:G.played, bestNet:G.bestNet, skips:G.skips, finished:!!G.finished, learned:learned, updatedAt:Date.now() };
+        }
+        function persistProgress(){
+          var prof = currentProfile(); if(!prof) return;
+          prof.save = serializeGame(); prof.updatedAt = Date.now(); saveStore();
+          var ss = $("saveStatus"); if(ss) ss.textContent = "✓ Saved on this device · " + new Date().toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+          var sub = $("playerSub");
+          if(sub && G) sub.innerHTML = "Welcome back, <b>" + prof.name + "</b> — you’re on <b>Level " + (G.level+1) + " of 6, Round " + G.roundInLevel + "</b> with <b>🪙 " + G.coins + " coins</b>. Progress auto-saves after every round on this device.";
+        }
+        function renderPlayerBar(){
+          var prof = currentProfile();
+          var actions = $("playerActions"), title = $("playerTitle"), sub = $("playerSub"), ss = $("saveStatus");
+          if(prof){
+            title.textContent = "Hi, " + prof.name + " 👋 Your progress is saved";
+            if(G) sub.innerHTML = "You’re on <b>Level " + (G.level+1) + " of 6, Round " + G.roundInLevel + "</b> with <b>🪙 " + G.coins + " coins</b>. Close the game and come back on this device — you’ll pick up right here.";
+            ss.textContent = prof.save ? "✓ Saved progress found on this device" : "✓ Player card ready — play a round to save";
+            actions.innerHTML = '<button class="smallbtn" type="button" id="switchBtn">Switch player</button><button class="smallbtn" type="button" id="logoutBtn">Log out</button>';
+            $("switchBtn").addEventListener("click", function(){ store.active = null; saveStore(); showAuth("login"); renderPlayerBar(); });
+            $("logoutBtn").addEventListener("click", function(){ store.active = null; saveStore(); $("authForm").hidden = true; newGame(); renderPlayerBar(); window.scrollTo({top:0, behavior:"smooth"}); });
+          } else {
+            title.textContent = "Save your progress — make a player card";
+            sub.textContent = "Pick a player name + 4-digit PIN. No email, no password to remember. Your levels, coins and stickers save on this device so you can stop and resume anytime.";
+            ss.textContent = "";
+            actions.innerHTML = '<button class="smallbtn coral" type="button" id="showCreateBtn">✨ Create player card</button><button class="smallbtn" type="button" id="showLoginBtn">I have a card — Log in</button><button class="smallbtn" type="button" id="guestBtn">Play as guest</button>';
+            $("showCreateBtn").addEventListener("click", function(){ showAuth("create"); });
+            $("showLoginBtn").addEventListener("click", function(){ showAuth("login"); });
+            $("guestBtn").addEventListener("click", function(){ $("authForm").hidden = true; $("authMsg").textContent = ""; $("playerBar").hidden = true; $("showPlayerBarBtn").hidden = false; });
+          }
+        }
+        function showAuth(mode){
+          authMode = mode;
+          $("authForm").hidden = false;
+          $("authSubmit").textContent = mode === "create" ? "Create my card & save" : "Log in & resume";
+          $("authMsg").textContent = ""; $("authMsg").className = "authmsg";
+          setTimeout(function(){ $("authName").focus(); }, 50);
+        }
+        function handleAuthSubmit(ev){
+          ev.preventDefault();
+          var name = $("authName").value.trim(), pin = $("authPin").value.trim(), msg = $("authMsg");
+          function fail(t){ msg.textContent = t; msg.className = "authmsg err"; }
+          if(name.length < 2) return fail("Pick a player name with at least 2 characters.");
+          if(!/^\d{4}$/.test(pin)) return fail("Your PIN needs to be exactly 4 numbers, like 2468.");
+          var key = profileKey(name);
+          if(authMode === "create"){
+            if(store.profiles[key]) return fail("That name already has a card on this device. Tap “I have a card — Log in” and use its PIN.");
+            store.profiles[key] = { name:name, pinHash:hashPin(pin), createdAt:Date.now(), save:serializeGame(), updatedAt:Date.now() };
+            store.active = key; saveStore();
+            $("authForm").hidden = true; msg.textContent = "";
+            renderPlayerBar(); persistProgress();
+            flashEvent("🎉 Player card created for " + name + "! Your progress now saves on this device after every round.");
+          } else {
+            var prof = store.profiles[key];
+            if(!prof) return fail("No card with that name on this device yet. Create one first — it takes 10 seconds.");
+            if(prof.pinHash !== hashPin(pin)) return fail("That PIN doesn’t match this card. Try again.");
+            store.active = key; saveStore();
+            $("authForm").hidden = true;
+            if(prof.save && (prof.save.played > 0 || prof.save.level > 0 || prof.save.coins !== 100)) loadGameFromSave(prof.save);
+            else { renderPlayerBar(); }
+            flashEvent("👋 Welcome back, " + prof.name + "! Your saved progress is loaded.");
+          }
+        }
+
+        /* ================= LEVELS ================= */
+        var ROUNDS_PER_LEVEL = 3;
+        var LEVELS = [
+          { icon:"🎟️", name:"Ticket Basics", power:"One ticket, one direction",
+            adds:"The original game: pick UP or DOWN, pick a target, beat the daily melt.",
+            learns:["call","put","strike","premium","expiry","theta"] },
+          { icon:"👯", name:"Team Tickets", power:"NEW: Spreads — two tickets together",
+            adds:"You now buy one ticket AND sell another further away. The pair costs less, the melt is gentler — but your win has a ceiling. Cheaper and calmer, capped at the top.",
+            learns:["spread","delta"] },
+          { icon:"🎈", name:"Hype Storm", power:"NEW: Volatility — tickets change price",
+            adds:"Same tickets, wildly different prices. When everyone is excited (hype!), tickets get pricey and prices swing hard. When it's calm, tickets are bargains. And watch out: hype can POP mid-week.",
+            learns:["volatility"] },
+          { icon:"🌻", name:"Share Garden", power:"NEW: Covered calls — you become the seller",
+            adds:"Now you OWN 2 Rainbow shares and other people buy tickets from YOU. You collect the ticket price (premium) instantly — but if the price zooms past your line, your shares' extra growth gets handed over. Income now, ceiling later.",
+            learns:["covered"] },
+          { icon:"🎯", name:"In the Zone", power:"NEW: Iron condor — win when nothing much happens",
+            adds:"You sell tickets on BOTH sides and keep the money if the price ends the week inside your zone. Calm weeks pay you. Big moves either way cost you — but your safety wings cap the worst case.",
+            learns:["condor"] },
+          { icon:"🌈", name:"Rainbow Master", power:"FINAL: Pick the right tool for the job",
+            adds:"No new trick — now you choose. Each round describes a week, and you pick which of your four tools fits it best: single ticket, spread, covered call, or iron condor. Picking the right tool IS the skill.",
+            learns:["fit"] }
+        ];
+
+        var TERMS = [
+          { id:"call",    word:"CALL",        plain:"The real name for an UP ticket. You win when the price climbs past your target." },
+          { id:"put",     word:"PUT",         plain:"The real name for a DOWN ticket. You win when the price falls past your target." },
+          { id:"strike",  word:"STRIKE PRICE",plain:"Your target line. The price has to cross it for your ticket to pay out big." },
+          { id:"premium", word:"PREMIUM",     plain:"The price of the ticket itself. For a buyer, it's the most you can ever lose on that ticket." },
+          { id:"expiry",  word:"EXPIRY",      plain:"The ticket's last day. After it, an unused ticket is worth nothing, like a raffle ticket after the draw." },
+          { id:"theta",   word:"THETA (the melt)", plain:"Tickets melt a little every day, even when the price sits still. Days passing = value dripping away." },
+          { id:"spread",  word:"SPREAD",      plain:"Two tickets as a team: buy one, sell a further one. Cheaper to enter, gentler melt — and a ceiling on the win." },
+          { id:"delta",   word:"DELTA",       plain:"How much your ticket's value moves when the price moves $1. Deep past your target, tickets move almost dollar-for-dollar." },
+          { id:"volatility", word:"VOLATILITY (IV)", plain:"How jumpy everyone expects the price to be. Jumpy expectations = pricey tickets. When the jumpiness pops, ticket values deflate fast — that's an IV crush." },
+          { id:"covered", word:"COVERED CALL", plain:"You own shares and sell an UP ticket on them. You pocket the premium; if price zooms past the line, your shares get 'called away' at that line." },
+          { id:"condor",  word:"IRON CONDOR", plain:"Sell an UP ticket and a DOWN ticket, buy safety wings further out. You keep the money if price stays in the middle zone. Max win and max loss are both known upfront." },
+          { id:"fit",     word:"STRATEGY FIT", plain:"The real skill: big move expected → buy a ticket; gentle move → spread; own shares + calm → covered call; dead calm → iron condor." }
+        ];
+        var learned = {};
+        function renderChips(){
+          $("chips").innerHTML = TERMS.map(function(t){
+            var got = learned[t.id];
+            return '<div class="chip' + (got ? " got" : "") + '"><b>' + (got ? "⭐ " : "🔒 ") + t.word + '</b>' +
+              (got ? t.plain : "Hidden in a level you haven't reached yet…") + '</div>';
+          }).join("");
+        }
+        function learn(id){ if(!learned[id]){ learned[id] = true; renderChips(); persistProgress(); } }
+        function learnMany(ids){ ids.forEach(learn); }
+
+        /* ================= CONTENT ================= */
+        var BUZZ = {
+          up:   ["A famous cat was spotted riding a Rainbow Rocket. Everyone wants one now!",
+                 "Rocket fans are camping outside the shop. Demand is bubbling up!",
+                 "A sunny launch video went viral. Smiles everywhere."],
+          down: ["Rain clouds are rolling in — rocket launches might get postponed.",
+                 "The rocket factory ran out of rainbow paint. Deliveries could slow down.",
+                 "A rival kite company just launched something shiny and new."],
+          flat: ["Nobody can agree on anything this week. Total coin-flip energy.",
+                 "Half the town says up, half says down. It's a wiggly one.",
+                 "Quiet week, no news at all. Anything could happen."]
+        };
+        var DAY_EVENTS = {
+          bigUp:   ["🚀 A celebrity cat rode the rocket on live TV! Price zooms up.", "🎉 Launch day was perfect — not a cloud in the sky!", "📣 The whole internet is talking about Rainbow Rockets!"],
+          up:      ["☀️ Lovely sunny day, lots of rocket fans out shopping.", "🛒 A school ordered 100 rockets for science class.", "😊 Happy reviews are rolling in."],
+          flat:    ["😴 A sleepy day. The price barely wiggled.", "🍦 Everyone was at the ice-cream stand instead.", "🐢 Slow day at the rocket shop."],
+          down:    ["🌧️ Drizzly afternoon — fewer shoppers about.", "🧦 The shop accidentally sold socks today. Confusing times.", "📉 A few fans decided to wait and see."],
+          bigDown: ["⛈️ Big storm! Launch cancelled, price tumbles.", "💨 A rocket landed in a muddy puddle on camera. Oops.", "🙀 The famous cat switched to kites. Fans are rattled."]
+        };
+        var HYPES = [
+          { id:"calm",   label:"😌 Calm week — tickets are CHEAP", note:"Nobody expects big moves, so ticket prices are discounted. Same tickets, bargain prices.", mult:0.6, vol:0.75, cls:"calm" },
+          { id:"normal", label:"🙂 Normal week — tickets fairly priced", note:"A regular week. Tickets cost what they usually cost.", mult:1, vol:1, cls:"normal" },
+          { id:"wild",   label:"🤩 WILD HYPE — tickets are PRICEY!", note:"Everyone expects fireworks, so tickets cost a lot more and the price swings hard. Expensive tickets need a REALLY big move to pay off — and hype can pop mid-week.", mult:1.8, vol:1.5, cls:"wild" }
+        ];
+        var SCENARIOS = [
+          { title:"🚀 Rocket fever!", story:"A huge launch is coming and tickets are still cheap. You feel a BIG climb in your bones — not a gentle one, a whopper.", drift:3.6, vol:1.15 },
+          { title:"🌤️ Steady good news", story:"Nice reviews keep trickling in. You expect a gentle, steady climb — up a bit, but no fireworks.", drift:1.7, vol:0.8 },
+          { title:"😴 The sleepiest week ever", story:"No news, no launch, half the town is on holiday. You'd be shocked if the price went anywhere at all.", drift:0, vol:0.45 }
+        ];
+
+        /* ================= STATE ================= */
+        var G = null;
+        var play = $("playArea");
+
+        function newGame(){
+          G = { coins:100, level:0, roundInLevel:1, streak:0, bestStreak:0, wins:0, played:0, bestNet:0, skips:0,
+                phase:"intro", startPrice:50, path:[], day:0, hint:0,
+                strategy:null, dir:null, strike:0, strike2:0, zoneLow:0, zoneHigh:0,
+                paidNet:0, premiumShown:0, mult:3, meltPerDay:0, cap:0, maxLoss:0, collected:0,
+                hype:null, crushPenalty:0, crushed:false, scenario:null, cashedOut:false, holding:false };
+          learned = {}; renderChips();
+          $("gameOver").classList.remove("show");
+          renderLevelMap();
+          if(G.level === 0){ setupRoundData(); beginRoundPlay(); } else { showLevelIntro(); }
+        }
+        function lvl(){ return LEVELS[G.level]; }
+
+        function renderLevelMap(){
+          $("levelTrack").innerHTML = LEVELS.map(function(L, i){
+            var st = G.finished || i < G.level ? "done" : (i === G.level ? "now" : "locked");
+            var label = G.finished || i < G.level ? "✓ Cleared" : (i === G.level ? "📍 YOU ARE HERE" : "");
+            return '<div class="lvlnode ' + st + '"><div class="ic">' + (st === 'locked' ? '🔒' : (i === 0 ? '☀️' : L.icon)) + '</div>' +
+              '<div class="nm">Level ' + (i+1) + '<br /><span style="font-weight:800;color:var(--muted);font-size:12px">' + L.name + '</span></div>' +
+              '<div class="pw">' + L.power + '</div><div class="st">' + label + '</div></div>';
+          }).join("");
+          $("lvlBadge").textContent = "Level " + (G.level+1) + " of 6 · " + lvl().icon + " " + lvl().name + " · Round " + G.roundInLevel + " of " + ROUNDS_PER_LEVEL;
+        }
+
+        function renderStats(){
+          persistProgress();
+          $("statCoins").textContent = G.coins;
+          $("statStreak").textContent = G.streak;
+          var sw = $("statWins"); if(sw) sw.textContent = G.wins + " / " + G.played;
+          var rt = $("statRoundText"); if(rt) rt.textContent = "Level " + (G.level+1) + " \u2022 Round " + G.roundInLevel + " of " + ROUNDS_PER_LEVEL;
+          renderLevelMap();
+        }
+
+        function setMouth(kind){
+          var m = $("mouth");
+          if(kind === "wow") m.setAttribute("d", "M50 66 Q60 84 70 66 Q60 72 50 66");
+          else if(kind === "sad") m.setAttribute("d", "M47 76 Q60 65 73 76");
+          else m.setAttribute("d", "M47 68 Q60 79 73 68");
+        }
+        function flashEvent(text){ $("eventBox").textContent = text; }
+
+        /* ================= LEVEL INTRO ================= */
+        function showLevelIntro(){
+          G.phase = "intro";
+          setupRoundData();
+          play.innerHTML =
+            '<span class="lvlbadge">' + (G.level === 0 ? "Start here" : "New level unlocked!") + '</span>' +
+            '<h2 class="step-title">' + lvl().icon + ' Level ' + (G.level+1) + ': ' + lvl().name + '</h2>' +
+            '<div class="newword"><b>What&rsquo;s new:</b> ' + lvl().adds + '</div>' +
+            '<p class="step-sub">Play ' + ROUNDS_PER_LEVEL + ' rounds with this trick to clear the level and unlock the next one. Your coins (' + G.coins + ') travel with you.</p>' +
+            '<div class="btnrow"><button class="bigbtn" type="button" id="startLvlBtn">Start Level ' + (G.level+1) + ' ▶</button></div>';
+          $("resultBox").className = "result"; $("resultBox").innerHTML = "";
+          renderStats();
+          $("startLvlBtn").addEventListener("click", function(){
+            sndPop(); learnMany(lvl().learns.slice(0, G.level === 0 ? 0 : lvl().learns.length));
+            beginRoundPlay();
+          });
+          window.scrollTo({ top:0, behavior:"smooth" });
+        }
+
+        /* ================= ROUND SETUP ================= */
+        function setupRoundData(){
+          G.dir = null; G.strategy = null; G.strike = 0; G.strike2 = 0; G.zoneLow = 0; G.zoneHigh = 0;
+          G.day = 0; G.cashedOut = false; G.holding = false; G.crushPenalty = 0; G.crushed = false;
+          G.startPrice = Math.round(rand(34, 70));
+
+          if(G.level === 5){
+            G.scenario = SCENARIOS[(G.roundInLevel - 1) % SCENARIOS.length];
+            G.hint = G.scenario.drift > 0.5 ? 1 : 0;
+            buildPath(G.scenario.drift, G.scenario.vol);
+            G.hype = null;
+          } else if(G.level === 2){
+            G.hype = pick(HYPES);
+            G.hint = pick([-1, 0, 1, 1, -1]);
+            buildPath(G.hint * 2.1, G.hype.vol);
+          } else {
+            G.hype = null;
+            G.hint = pick([-1, 0, 1, 1, -1]);
+            buildPath(G.hint * 2.1, 1);
+          }
+          $("buzzText").textContent =
+            G.level === 5 ? G.scenario.story :
+            G.level === 3 ? "You own 2 Rainbow Rocket shares. Other players are feeling " + (G.hint > 0 ? "excited and want UP tickets from you." : G.hint < 0 ? "nervous — your shares might wobble." : "calm — a sleepy week for your shares.") :
+            G.level === 4 ? "Forecasters say: a quiet, stay-at-home week for the price. Probably. Mostly. 🌤️" :
+            (G.hint > 0 ? pick(BUZZ.up) : (G.hint < 0 ? pick(BUZZ.down) : pick(BUZZ.flat)));
+          var hb = $("hypeBadge");
+          if(G.level === 2 && G.hype){
+            hb.className = "hypebadge show " + G.hype.cls;
+            hb.innerHTML = G.hype.label + "<small>" + G.hype.note + "</small>";
+          } else { hb.className = "hypebadge"; hb.innerHTML = ""; }
+          $("priceNow").textContent = G.startPrice;
+          $("priceMove").textContent = "A brand-new week is about to start!";
+          $("priceMove").className = "move";
+          $("eventBox").textContent = "";
+          $("ticketMeter").classList.remove("show");
+          $("resultBox").className = "result"; $("resultBox").innerHTML = "";
+          setMouth("smile");
+          drawChart();
+        }
+
+        function buildPath(drift, vol){
+          var price = G.startPrice, path = [price];
+          for(var d=0; d<5; d++){
+            var step = drift + rand(-5.2, 5.2) * vol + (d===2 ? rand(-3.5, 3.5) * vol : 0);
+            price = Math.max(6, Math.round(price + step));
+            path.push(price);
+          }
+          G.path = path;
+        }
+
+        function startRound(){
+          if(G.coins < 6){
+            G.coins += 25;
+            flashEvent("🌞 Sunny tops up your pocket with a 25-coin sunshine grant so you can keep playing!");
+          }
+          setupRoundData();
+          renderStats();
+          beginRoundPlay();
+        }
+
+        function beginRoundPlay(){
+          if(G.level === 0 || G.level === 2) renderDirection();
+          else if(G.level === 1) renderSpreadDirection();
+          else if(G.level === 3) renderCovered();
+          else if(G.level === 4) renderCondor();
+          else renderMaster();
+        }
+
+        /* ================= CHART ================= */
+        function drawChart(){
+          var svg = $("chart");
+          var revealed = G.path.slice(0, G.day + 1);
+          var marks = [];
+          if(G.strike) marks.push(G.strike);
+          if(G.strike2) marks.push(G.strike2);
+          if(G.zoneLow){ marks.push(G.zoneLow); marks.push(G.zoneHigh); }
+          var all = G.path.concat(marks);
+          var min = Math.min.apply(null, all) - 6, max = Math.max.apply(null, all) + 6;
+          var W = 640, H = 230, padL = 46, padR = 16, padT = 16, padB = 22;
+          var X = function(i){ return padL + i * ((W - padL - padR) / 5); };
+          var Y = function(v){ return padT + (max - v) * ((H - padT - padB) / (max - min)); };
+          var s = "";
+          for(var g=0; g<=3; g++){
+            var val = min + (max - min) * g / 3, y = Y(val);
+            s += '<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="var(--line)" stroke-width="1.5"/>';
+            s += '<text x="'+(padL-7)+'" y="'+(y+4)+'" text-anchor="end" font-size="12" font-weight="800" fill="var(--muted)">$'+Math.round(val)+'</text>';
+          }
+          function hline(v, color, label){
+            var yy = Y(v);
+            s += '<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="'+color+'" stroke-width="3" stroke-dasharray="9 7"/>';
+            s += '<text x="'+(W-padR)+'" y="'+(yy-8)+'" text-anchor="end" font-size="13" font-weight="900" fill="'+color+'">'+label+' $'+v+'</text>';
+          }
+          if(G.zoneLow){ hline(G.zoneHigh, "var(--teal)", "ZONE TOP"); hline(G.zoneLow, "var(--pink)", "ZONE BOTTOM"); }
+          if(G.strike) hline(G.strike, "var(--coral)", G.strategy === "covered" ? "YOUR SELL LINE" : "TARGET");
+          if(G.strike2) hline(G.strike2, "var(--teal)", "2ND LINE");
+          if(revealed.length > 1){
+            var pts = revealed.map(function(v,i){ return X(i)+","+Y(v); }).join(" ");
+            s += '<polyline points="'+pts+'" fill="none" stroke="var(--sky)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>';
+          }
+          revealed.forEach(function(v,i){
+            s += '<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="8" fill="var(--card)" stroke="var(--sky)" stroke-width="4"/>';
+            s += '<text x="'+X(i)+'" y="'+(Y(v)-15)+'" text-anchor="middle" font-size="14" font-weight="900" fill="var(--ink)">$'+v+'</text>';
+          });
+          if(revealed.length === 1){
+            s += '<text x="'+(X(0)+14)+'" y="'+(Y(revealed[0])+30)+'" text-anchor="start" font-size="12" font-weight="800" fill="var(--muted)">← starts here</text>';
+          }
+          svg.innerHTML = s;
+        }
+
+        function scaleBarHTML(points){
+          var vals = points.map(function(p){ return p.v; });
+          var lo = Math.min.apply(null, vals) - 12, hi = Math.max.apply(null, vals) + 12;
+          var inner = '<div class="scalebar">';
+          points.forEach(function(p){
+            var pct = clamp((p.v - lo) / (hi - lo) * 100, 2, 98);
+            if(p.kind === "now") inner += '<i style="left:' + pct + '%"></i>';
+            else inner += '<em class="' + (p.kind === "second" ? "second" : "") + '" style="left:' + pct + '%" aria-hidden="true"></em>';
+          });
+          inner += '</div><div class="scalelabels">' + points.map(function(p){ return '<span>' + p.label + ' $' + p.v + '</span>'; }).join("") + '</div>';
+          return inner;
+        }
+
+        /* ================= PAYOFF MATH ================= */
+        function intrinsicAt(price){
+          if(G.strategy === "long"){
+            return G.dir === "up" ? Math.max(0, price - G.strike) * G.mult : Math.max(0, G.strike - price) * G.mult;
+          }
+          if(G.strategy === "spread"){
+            var raw = G.dir === "up" ? (price - G.strike) * G.mult : (G.strike - price) * G.mult;
+            return clamp(raw, 0, G.cap);
+          }
+          return 0;
+        }
+        // For buyer strategies: current sellable ticket value (intrinsic + remaining melt, minus any crush)
+        function buyerValue(){
+          var daysLeft = 5 - G.day;
+          var v = intrinsicAt(G.path[G.day]) + (daysLeft > 0 ? daysLeft * G.meltPerDay : 0) - G.crushPenalty;
+          if(G.strategy === "spread") v = Math.min(v, G.cap + (daysLeft > 0 ? daysLeft * G.meltPerDay : 0));
+          return Math.max(0, Math.round(v));
+        }
+        // For seller strategies: payout at settlement if week ended at `price` (can be negative)
+        function sellerPayoutAt(price){
+          if(G.strategy === "covered"){
+            return Math.round((Math.min(price, G.strike) - G.startPrice) * 2);
+          }
+          if(G.strategy === "condor"){
+            if(price >= G.zoneLow && price <= G.zoneHigh) return 0;
+            var outside = price > G.zoneHigh ? price - G.zoneHigh : G.zoneLow - price;
+            return -Math.min(G.maxLoss, Math.round(outside * 3));
+          }
+          return 0;
+        }
+        function currentValue(){
+          if(G.strategy === "long" || G.strategy === "spread") return buyerValue();
+          return sellerPayoutAt(G.path[G.day]) - G.paidNet; // net P&L so far for sellers (paidNet is negative)
+        }
+
+        function updateMeter(){
+          var meter = $("ticketMeter");
+          meter.classList.add("show");
+          if(G.strategy === "long" || G.strategy === "spread"){
+            var v = buyerValue();
+            $("meterTitle").textContent = "🎟️ Your " + (G.strategy === "spread" ? "ticket team" : "ticket") + " is worth " + v + " coins right now";
+            $("meltLabel").textContent = G.day >= 5 ? "Last day — no melt left!" : "Day " + (G.day + 1) + " of 5 · melts about " + Math.round(G.meltPerDay) + " coins a day ⏳" + (G.crushed ? " · 💥 hype popped!" : "");
+            $("meltFill").style.width = clamp(v / Math.max(G.premiumShown * 2.2, v) * 100, 4, 100) + "%";
+            $("meterNote").innerHTML = G.strategy === "spread"
+              ? "Your team can never pay more than <strong>" + G.cap + " coins</strong> at the end — that's the ceiling you agreed to for a cheaper ticket. Cash out anytime, or hold."
+              : "You can grab that value any day with <strong>Cash out</strong> — or hold on and hope it grows. On the last day the melt is gone and only the target matters.";
+          } else if(G.strategy === "covered"){
+            var pl = sellerPayoutAt(G.path[G.day]) + G.collected;
+            $("meterTitle").textContent = "🌻 If the week ended now: shares " + (sellerPayoutAt(G.path[G.day]) >= 0 ? "+" : "") + sellerPayoutAt(G.path[G.day]) + " coins, plus the " + G.collected + " coins you already collected";
+            $("meltLabel").textContent = "Day " + (G.day + 1) + " of 5 · your line is $" + G.strike;
+            $("meltFill").style.width = clamp((pl + 30) / 60 * 100, 4, 100) + "%";
+            $("meterNote").innerHTML = "Past your $" + G.strike + " line, extra share growth gets handed to your ticket buyer — that's the deal you sold. Below it, every dollar is yours (minus wobbles), and the " + G.collected + " coins are yours to keep no matter what.";
+          } else if(G.strategy === "condor"){
+            var inside = G.path[G.day] >= G.zoneLow && G.path[G.day] <= G.zoneHigh;
+            var pay = sellerPayoutAt(G.path[G.day]);
+            $("meterTitle").textContent = inside ? "🎯 Price is INSIDE your zone — you keep all " + G.collected + " coins if it ends here" : "🎯 Price is OUTSIDE your zone — ending here would cost you " + Math.abs(pay) + " of your " + G.collected + " coins (worst case " + G.maxLoss + ")";
+            $("meltLabel").textContent = "Day " + (G.day + 1) + " of 5 · zone $" + G.zoneLow + " – $" + G.zoneHigh;
+            $("meltFill").style.width = inside ? "100%" : clamp((G.collected + pay) / G.collected * 100, 4, 96) + "%";
+            $("meterNote").innerHTML = "No cash-out here — when you sell a condor, you ride it to expiry. Calm is your best friend; a big move either way is the danger.";
+          }
+        }
+
+        /* ================= LEVEL 1 & 3: SINGLE TICKET ================= */
+        function renderDirection(){
+          G.phase = "direction";
+          var hypeNote = G.level === 2 ? '<div class="newword">🎈 <b>Hype check first!</b> Look at the hype badge above the chart — it changes what these tickets COST this week.</div>' : "";
+          play.innerHTML = hypeNote +
+            '<h2 class="step-title">Level ' + (G.level+1) + ', Round ' + G.roundInLevel + ' — which way will the price go? 🤔</h2>' +
+            '<p class="step-sub">The price is <strong>$' + G.startPrice + '</strong> right now. Read the buzz up top, then pick a ticket.</p>' +
+            '<div class="cards">' +
+              '<button class="pick up" type="button" data-dir="up">' +
+                '<span class="icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 20V6M6 11l6-6 6 6" stroke="#00a88f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+                '<h3>UP<br />ticket</h3><p>Price goes UP past my target, I win coins!</p>' +
+                '<span class="tag">Traders call this a CALL</span></button>' +
+              '<button class="pick down" type="button" data-dir="down">' +
+                '<span class="icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 4v14M6 13l6 6 6-6" stroke="#ff5d8f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+                '<h3>DOWN<br />ticket</h3><p>Price goes DOWN past my target, I win coins!</p>' +
+                '<span class="tag">Traders call this a PUT</span></button>' +
+              '<button class="pick" type="button" data-dir="skip">' +
+                '<span class="icon" style="background:var(--gold)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 17c2-1 4-1 6 0s4 1 6 0 3-1 4 0M12 4v6M8 7l4-3 4 3" stroke="#b8860b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+                '<h3>Sit this one out 😴</h3><p>No ticket, no risk. My coins stay safe in the hammock this round.</p>' +
+                '<span class="tag">Sometimes the smartest move</span></button>' +
+            '</div>';
+          play.querySelectorAll("[data-dir]").forEach(function(btn){
+            btn.addEventListener("click", function(){
+              sndClick();
+              var d = btn.getAttribute("data-dir");
+              if(d === "skip"){ skipRound(); return; }
+              G.dir = d; G.strategy = "long";
+              learn(d === "up" ? "call" : "put"); learn("strike"); learn("premium");
+              renderLongTarget();
+            });
+          });
+        }
+
+        function hypeMult(){ return (G.level === 2 && G.hype) ? G.hype.mult : 1; }
+
+        function renderLongTarget(){
+          G.phase = "target";
+          var cozyStrike = G.dir === "up" ? G.startPrice + 3 : G.startPrice - 3;
+          var boldStrike = G.dir === "up" ? G.startPrice + 11 : Math.max(4, G.startPrice - 11);
+          var dirWord = G.dir === "up" ? "climb above" : "drop below";
+          var hm = hypeMult();
+          var cozyCost = Math.max(3, Math.round(15 * hm)), boldCost = Math.max(2, Math.round(6 * hm));
+          play.innerHTML =
+            '<h2 class="step-title">Now pick your target line 🎯</h2>' +
+            '<p class="step-sub">Your ' + (G.dir === "up" ? "UP 🚀" : "DOWN 🌂") + ' ticket pays for every dollar the price finishes past your target.' +
+            (G.level === 2 ? ' This week tickets are <strong>' + (hm < 1 ? "on sale!" : hm > 1 ? "extra pricey because of the hype!" : "normally priced.") + '</strong>' : '') + '</p>' +
+            '<div class="cards two">' +
+              '<button class="pick cozy" type="button" data-style="cozy">' +
+                '<h3>Cozy target 🐣</h3><p>The price only has to ' + dirWord + ' <strong>$' + cozyStrike + '</strong> — nice and close. Wins often, wins gently.</p>' +
+                scaleBarHTML([{v:G.startPrice,kind:"now",label:"Price now"},{v:cozyStrike,kind:"target",label:"Target"}]) +
+                '<div class="price-line">Ticket cost: ' + cozyCost + ' coins · wins 3 coins per $1 past target</div>' +
+                '<span class="tag">Steady &amp; friendly</span></button>' +
+              '<button class="pick bold" type="button" data-style="bold">' +
+                '<h3>Brave target 🦁</h3><p>The price has to ' + dirWord + ' <strong>$' + boldStrike + '</strong> — a long way! Wins rarely, but when it wins… confetti.</p>' +
+                scaleBarHTML([{v:G.startPrice,kind:"now",label:"Price now"},{v:boldStrike,kind:"target",label:"Target"}]) +
+                '<div class="price-line">Ticket cost: ' + boldCost + ' coins · wins 6 coins per $1 past target</div>' +
+                '<span class="tag">Cheap ticket, big dream</span></button>' +
+            '</div>' +
+            '<div class="btnrow"><button class="bigbtn ghost" type="button" id="backBtn">← Back</button></div>';
+          $("backBtn").addEventListener("click", function(){ sndClick(); renderDirection(); });
+          play.querySelectorAll("[data-style]").forEach(function(btn){
+            btn.addEventListener("click", function(){
+              var st = btn.getAttribute("data-style");
+              if(st === "cozy"){ G.strike = cozyStrike; G.premiumShown = cozyCost; G.mult = 3; G.meltPerDay = 3 * hm; }
+              else { G.strike = boldStrike; G.premiumShown = boldCost; G.mult = 6; G.meltPerDay = 1.2 * hm; }
+              G.paidNet = G.premiumShown;
+              drawChart();
+              renderReady('You are buying a <b>' + (G.dir === "up" ? "🚀 UP ticket (a CALL)" : "🌂 DOWN ticket (a PUT)") + '</b> with target <b>$' + G.strike + '</b>.<br />Ticket cost: <b>' + G.premiumShown + ' coins</b> — and that is the <span class="safe">most you can possibly lose</span>. Every $1 the price finishes past $' + G.strike + ' pays you <b>' + G.mult + ' coins</b>, with no ceiling. The ticket lasts 5 days, then it expires.');
+            });
+          });
+        }
+
+        function renderReady(summaryHTML){
+          G.phase = "ready";
+          play.innerHTML =
+            '<h2 class="step-title">Ready when you are! 🎟️</h2>' +
+            '<div class="summary">' + summaryHTML + '</div>' +
+            '<div class="btnrow">' +
+              '<button class="bigbtn" type="button" id="buyBtn">Start the week ▶</button>' +
+              '<button class="bigbtn ghost" type="button" id="backBtn2">← Change my pick</button>' +
+            '</div>';
+          $("backBtn2").addEventListener("click", function(){
+            sndClick();
+            G.strike = 0; G.strike2 = 0; G.zoneLow = 0; G.zoneHigh = 0; drawChart(); beginRoundPlay();
+          });
+          $("buyBtn").addEventListener("click", function(){
+            sndPop();
+            G.coins -= G.paidNet; // negative paidNet (sellers) ADDS coins here — the premium lands in your pocket
+            G.played++;
+            learn("expiry"); if(G.strategy === "long") learn("theta");
+            G.phase = "playing"; G.day = 0;
+            renderStats(); updateMeter(); drawChart(); renderPlaying();
+          });
+        }
+
+        /* ================= LEVEL 2: SPREADS ================= */
+        function renderSpreadDirection(){
+          G.phase = "direction";
+          play.innerHTML =
+            '<div class="newword">👯 <b>New trick — team tickets!</b> You buy a ticket AND sell a second ticket further away. Your teammate pays part of your cost… but also puts a ceiling on your win.</div>' +
+            '<h2 class="step-title">Level 2, Round ' + G.roundInLevel + ' — which way will the price go? 🤔</h2>' +
+            '<p class="step-sub">Price is <strong>$' + G.startPrice + '</strong>. Pick the direction for your team.</p>' +
+            '<div class="cards two">' +
+              '<button class="pick up" type="button" data-dir="up"><h3>UP team 🚀👯</h3><p>I think the price goes <strong>UP</strong>. Buy an UP ticket, sell a higher UP ticket.</p><span class="tag">A bull call spread</span></button>' +
+              '<button class="pick down" type="button" data-dir="down"><h3>DOWN team 🌂👯</h3><p>I think the price goes <strong>DOWN</strong>. Buy a DOWN ticket, sell a lower DOWN ticket.</p><span class="tag">A bear put spread</span></button>' +
+            '</div>' +
+            '<div class="btnrow"><button class="bigbtn ghost" type="button" id="skipBtn">😴 Sit this one out</button></div>';
+          $("skipBtn").addEventListener("click", function(){ sndClick(); skipRound(); });
+          play.querySelectorAll("[data-dir]").forEach(function(btn){
+            btn.addEventListener("click", function(){
+              sndClick();
+              G.dir = btn.getAttribute("data-dir"); G.strategy = "spread";
+              learn("spread"); learn("delta"); learn("strike"); learn("premium");
+              renderSpreadWidth();
+            });
+          });
+        }
+
+        function renderSpreadWidth(){
+          var sgn = G.dir === "up" ? 1 : -1;
+          var buyK = G.startPrice + sgn * 3;
+          var narrowSell = G.startPrice + sgn * 9, wideSell = G.startPrice + sgn * 15;
+          if(G.dir === "down"){ narrowSell = Math.max(3, narrowSell); wideSell = Math.max(2, wideSell); }
+          var dirWord = G.dir === "up" ? "climb" : "fall";
+          play.innerHTML =
+            '<h2 class="step-title">Pick your team&rsquo;s width 🎯</h2>' +
+            '<p class="step-sub">Both teams buy the $' + buyK + ' ticket. The question is where your sold teammate stands — that line is your win ceiling.</p>' +
+            '<div class="cards two">' +
+              '<button class="pick cozy" type="button" data-w="narrow">' +
+                '<h3>Narrow team 🐣</h3><p>Sell the <strong>$' + narrowSell + '</strong> ticket. If the price ' + dirWord + 's all the way there, your team pays its max.</p>' +
+                scaleBarHTML([{v:G.startPrice,kind:"now",label:"Price now"},{v:buyK,kind:"target",label:"You buy"},{v:narrowSell,kind:"second",label:"You sell"}]) +
+                '<div class="price-line">Team cost: 8 coins · max payout 18 coins · gentle melt</div>' +
+                '<span class="tag">Costs less, caps sooner</span></button>' +
+              '<button class="pick bold" type="button" data-w="wide">' +
+                '<h3>Wide team 🦁</h3><p>Sell the <strong>$' + wideSell + '</strong> ticket. More room to run before the ceiling.</p>' +
+                scaleBarHTML([{v:G.startPrice,kind:"now",label:"Price now"},{v:buyK,kind:"target",label:"You buy"},{v:wideSell,kind:"second",label:"You sell"}]) +
+                '<div class="price-line">Team cost: 11 coins · max payout 36 coins · gentle melt</div>' +
+                '<span class="tag">Costs more, bigger ceiling</span></button>' +
+            '</div>' +
+            '<div class="btnrow"><button class="bigbtn ghost" type="button" id="backBtn">← Back</button></div>';
+          $("backBtn").addEventListener("click", function(){ sndClick(); renderSpreadDirection(); });
+          play.querySelectorAll("[data-w]").forEach(function(btn){
+            btn.addEventListener("click", function(){
+              var w = btn.getAttribute("data-w");
+              G.strike = buyK; G.mult = 3; G.meltPerDay = 1.4;
+              if(w === "narrow"){ G.strike2 = narrowSell; G.premiumShown = 8; G.cap = 18; }
+              else { G.strike2 = wideSell; G.premiumShown = 11; G.cap = 36; }
+              G.paidNet = G.premiumShown;
+              drawChart();
+              renderReady('Your <b>' + (G.dir === "up" ? "UP team (bull call spread)" : "DOWN team (bear put spread)") + '</b>: buy the <b>$' + G.strike + '</b> ticket, sell the <b>$' + G.strike2 + '</b> ticket.<br />Team cost: <b>' + G.premiumShown + ' coins</b> — the <span class="safe">most you can lose</span>. Best possible payout: <b>' + G.cap + ' coins</b> if the price finishes at or past $' + G.strike2 + '. Notice: cheaper than a solo ticket, and it melts slower — the ceiling is the trade-off.');
+            });
+          });
+        }
+
+        /* ================= LEVEL 4: COVERED CALL ================= */
+        function renderCovered(){
+          G.phase = "direction";
+          play.innerHTML =
+            '<div class="newword">🌻 <b>New trick — you&rsquo;re the ticket shop now!</b> You own <b>2 Rainbow shares</b> (worth $' + G.startPrice + ' each). Sell an UP ticket on them and the ticket price lands in your pocket <b>right away</b>. If the price ends past your sell line, your shares get sold at that line — no more growth beyond it.</div>' +
+            '<h2 class="step-title">Level 4, Round ' + G.roundInLevel + ' — sell a ticket, or just hold? 🌻</h2>' +
+            '<p class="step-sub">Your shares move with the price all week: every $1 the price moves = 2 coins for you, up or down.</p>' +
+            '<div class="cards">' +
+              '<button class="pick cozy" type="button" data-cov="near"><h3>Sell a close line 🐣</h3><p>Sell line at <strong>$' + (G.startPrice + 4) + '</strong>. Buyers pay you <strong>12 coins</strong> — juicy! But your shares stop growing just $4 up.</p><span class="tag">Big income, low ceiling</span></button>' +
+              '<button class="pick bold" type="button" data-cov="far"><h3>Sell a far line 🦁</h3><p>Sell line at <strong>$' + (G.startPrice + 10) + '</strong>. Buyers pay you <strong>5 coins</strong>. Your shares get $10 of room to grow first.</p><span class="tag">Small income, high ceiling</span></button>' +
+              '<button class="pick" type="button" data-cov="hold"><h3>Just hold my shares 🌱</h3><p>Sell nothing, collect nothing. Full growth if it climbs, full wobble if it falls.</p><span class="tag">No ceiling, no cushion</span></button>' +
+            '</div>';
+          play.querySelectorAll("[data-cov]").forEach(function(btn){
+            btn.addEventListener("click", function(){
+              sndClick();
+              var c = btn.getAttribute("data-cov");
+              learn("covered"); learn("premium");
+              if(c === "hold"){
+                G.strategy = "holdshares"; G.holding = true; G.paidNet = 0; G.collected = 0; G.premiumShown = 0;
+                G.phase = "playing"; G.day = 0; G.played++;
+                renderStats(); drawChart(); renderPlaying();
+                flashEvent("🌱 You're just holding your 2 shares this week. Let's see where they drift!");
+                return;
+              }
+              G.strategy = "covered";
+              if(c === "near"){ G.strike = G.startPrice + 4; G.collected = 12; }
+              else { G.strike = G.startPrice + 10; G.collected = 5; }
+              G.premiumShown = G.collected; G.paidNet = -G.collected;
+              drawChart();
+              renderReady('You <b>sell a covered call</b> at the <b>$' + G.strike + '</b> line. <b>' + G.collected + ' coins</b> land in your pocket the moment the week starts — yours to keep whatever happens.<br />If the price finishes above $' + G.strike + ', your shares are sold at $' + G.strike + ' (growth stops there). Below it, your shares are worth whatever the price says, and the ' + G.collected + ' coins cushion any fall.');
+            });
+          });
+        }
+
+        /* ================= LEVEL 5: IRON CONDOR ================= */
+        function renderCondor(){
+          G.phase = "direction";
+          play.innerHTML =
+            '<div class="newword">🎯 <b>New trick — get paid for a boring week!</b> You sell an UP ticket above the price and a DOWN ticket below it, and buy cheap safety wings further out. End the week <b>inside the zone</b> and you keep every coin. Your wings cap the worst case, so you know your max loss upfront.</div>' +
+            '<h2 class="step-title">Level 5, Round ' + G.roundInLevel + ' — how wide is your zone? 🎯</h2>' +
+            '<p class="step-sub">Price starts at <strong>$' + G.startPrice + '</strong>. The buzz says calm — but calm is a forecast, not a promise.</p>' +
+            '<div class="cards two">' +
+              '<button class="pick cozy" type="button" data-z="wide">' +
+                '<h3>Wide zone 🐣</h3><p>Zone: <strong>$' + (G.startPrice - 9) + ' to $' + (G.startPrice + 9) + '</strong>. Lots of room for wiggles.</p>' +
+                scaleBarHTML([{v:G.startPrice - 9,kind:"target",label:"Zone bottom"},{v:G.startPrice,kind:"now",label:"Price now"},{v:G.startPrice + 9,kind:"second",label:"Zone top"}]) +
+                '<div class="price-line">Collect 9 coins · worst case −15 coins</div>' +
+                '<span class="tag">Safer, smaller pay</span></button>' +
+              '<button class="pick bold" type="button" data-z="tight">' +
+                '<h3>Tight zone 🦁</h3><p>Zone: <strong>$' + (G.startPrice - 5) + ' to $' + (G.startPrice + 5) + '</strong>. The price must behave itself.</p>' +
+                scaleBarHTML([{v:G.startPrice - 5,kind:"target",label:"Zone bottom"},{v:G.startPrice,kind:"now",label:"Price now"},{v:G.startPrice + 5,kind:"second",label:"Zone top"}]) +
+                '<div class="price-line">Collect 16 coins · worst case −18 coins</div>' +
+                '<span class="tag">Riskier, juicier pay</span></button>' +
+            '</div>' +
+            '<div class="btnrow"><button class="bigbtn ghost" type="button" id="skipBtn">😴 Sit this one out</button></div>';
+          $("skipBtn").addEventListener("click", function(){ sndClick(); skipRound(); });
+          play.querySelectorAll("[data-z]").forEach(function(btn){
+            btn.addEventListener("click", function(){
+              sndClick();
+              var z = btn.getAttribute("data-z");
+              G.strategy = "condor"; learn("condor"); learn("premium");
+              if(z === "wide"){ G.zoneLow = G.startPrice - 9; G.zoneHigh = G.startPrice + 9; G.collected = 9; G.maxLoss = 15; }
+              else { G.zoneLow = G.startPrice - 5; G.zoneHigh = G.startPrice + 5; G.collected = 16; G.maxLoss = 18; }
+              G.premiumShown = G.collected; G.paidNet = -G.collected;
+              drawChart();
+              renderReady('Your <b>iron condor</b> is set: zone <b>$' + G.zoneLow + ' – $' + G.zoneHigh + '</b>. <b>' + G.collected + ' coins</b> land in your pocket right away.<br />Finish inside the zone: you keep it all. Finish outside: every $1 beyond the zone costs 3 coins, but your safety wings stop the damage at <b>' + G.maxLoss + ' coins</b> — that plus the premium is the whole story, known before you start.');
+            });
+          });
+        }
+
+        /* ================= LEVEL 6: MASTER — PICK THE TOOL ================= */
+        function renderMaster(){
+          G.phase = "direction";
+          var sc = G.scenario;
+          play.innerHTML =
+            '<div class="newword">🌈 <b>Final level — no new trick.</b> Read the week, then pick the tool that fits it. The wrong tool on the right idea still loses; the right tool makes the week pay you.</div>' +
+            '<h2 class="step-title">Level 6, Round ' + G.roundInLevel + ' — ' + sc.title + '</h2>' +
+            '<p class="step-sub">' + sc.story + ' Price starts at <strong>$' + G.startPrice + '</strong>. Which tool do you reach for?</p>' +
+            '<div class="cards four">' +
+              '<button class="pick up" type="button" data-tool="call"><h3>🚀 Single UP ticket</h3><p>Target $' + (G.startPrice + 3) + ', costs 9 coins, pays 3 per $1 with <strong>no ceiling</strong>. Built for BIG moves.</p><span class="tag">A long CALL</span></button>' +
+              '<button class="pick cozy" type="button" data-tool="spread"><h3>👯 UP team (spread)</h3><p>Buy $' + (G.startPrice + 3) + ', sell $' + (G.startPrice + 12) + '. Costs 8, max payout 27. Built for <strong>gentle climbs</strong>.</p><span class="tag">A bull call spread</span></button>' +
+              '<button class="pick bold" type="button" data-tool="covered"><h3>🌻 Covered call</h3><p>You hold 2 shares and sell a $' + (G.startPrice + 6) + ' line, collecting <strong>8 coins</strong> now. Built for <strong>calm weeks with shares</strong>.</p><span class="tag">Income from shares</span></button>' +
+              '<button class="pick down" type="button" data-tool="condor"><h3>🎯 Iron condor</h3><p>Zone $' + (G.startPrice - 7) + ' – $' + (G.startPrice + 7) + ', collect <strong>12 coins</strong>, worst case −16. Built for <strong>dead-calm weeks</strong>.</p><span class="tag">Paid for boring</span></button>' +
+            '</div>';
+          play.querySelectorAll("[data-tool]").forEach(function(btn){
+            btn.addEventListener("click", function(){
+              sndClick();
+              var tool = btn.getAttribute("data-tool");
+              learn("fit");
+              if(tool === "call"){
+                G.strategy = "long"; G.dir = "up"; G.strike = G.startPrice + 3; G.mult = 3; G.meltPerDay = 2; G.premiumShown = 9; G.paidNet = 9;
+              } else if(tool === "spread"){
+                G.strategy = "spread"; G.dir = "up"; G.strike = G.startPrice + 3; G.strike2 = G.startPrice + 12; G.mult = 3; G.meltPerDay = 1.2; G.cap = 27; G.premiumShown = 8; G.paidNet = 8;
+              } else if(tool === "covered"){
+                G.strategy = "covered"; G.strike = G.startPrice + 6; G.collected = 8; G.premiumShown = 8; G.paidNet = -8;
+              } else {
+                G.strategy = "condor"; G.zoneLow = G.startPrice - 7; G.zoneHigh = G.startPrice + 7; G.collected = 12; G.maxLoss = 16; G.premiumShown = 12; G.paidNet = -12;
+              }
+              drawChart();
+              G.phase = "playing"; G.day = 0; G.played++;
+              G.coins -= G.paidNet;
+              renderStats(); updateMeter(); renderPlaying();
+              flashEvent("🛠️ Tool chosen! Let's see if it fits this week…");
+            });
+          });
+        }
+
+        /* ================= PLAYING THE WEEK ================= */
+        function isBuyer(){ return G.strategy === "long" || G.strategy === "spread"; }
+
+        function renderPlaying(){
+          var price = G.path[G.day];
+          var dayName = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday — results day!"][G.day];
+          var sub;
+          if(G.strategy === "holdshares"){
+            var pl = Math.round((price - G.startPrice) * 2);
+            sub = 'Your 2 shares are ' + (pl >= 0 ? "up " + pl : "down " + Math.abs(pl)) + ' coins so far. No ticket, just the ride.';
+          } else if(isBuyer()){
+            sub = 'Your ' + (G.strategy === "spread" ? "team" : "ticket") + ' is worth <strong>' + buyerValue() + ' coins</strong> if you cash out now (you paid ' + G.premiumShown + '). Hold for more — or grab it before it melts?';
+          } else if(G.strategy === "covered"){
+            sub = 'You already pocketed ' + G.collected + ' coins. Your shares are ' + (sellerPayoutAt(price) >= 0 ? "+" : "") + sellerPayoutAt(price) + ' coins so far' + (price > G.strike ? ' — past your line, extra growth now goes to your buyer.' : '.');
+          } else {
+            var inside = price >= G.zoneLow && price <= G.zoneHigh;
+            sub = inside ? 'Price is <strong>inside your zone</strong> ($' + G.zoneLow + '–$' + G.zoneHigh + '). Keep it boring, keep your ' + G.collected + ' coins.' : 'Price is <strong>outside your zone</strong> right now — it needs to wander back before Friday ends.';
+          }
+          play.innerHTML =
+            '<h2 class="step-title">' + dayName + ' — price is $' + price + '</h2>' +
+            '<p class="step-sub">' + sub + '</p>' +
+            '<div class="btnrow">' +
+              (G.day < 5 ? '<button class="bigbtn" type="button" id="nextDayBtn">Next day ☀️ →</button>' : '') +
+              (G.day < 5 && isBuyer() ? '<button class="bigbtn teal" type="button" id="cashBtn">💰 Cash out for ' + buyerValue() + ' coins</button>' : '') +
+              (G.day >= 5 ? '<button class="bigbtn" type="button" id="settleBtn">Open my results envelope ✉️</button>' : '') +
+            '</div>';
+          if(G.day < 5){
+            $("nextDayBtn").addEventListener("click", advanceDay);
+            if(isBuyer()) $("cashBtn").addEventListener("click", function(){ G.cashedOut = true; sndPop(); settle(buyerValue()); });
+          } else {
+            $("settleBtn").addEventListener("click", function(){
+              if(isBuyer()) settle(buyerValue());
+              else if(G.strategy === "holdshares") settleHold();
+              else settle(sellerPayoutAt(G.path[5]));
+            });
+          }
+        }
+
+        function advanceDay(){
+          var before = G.path[G.day];
+          G.day++;
+          var now = G.path[G.day], step = now - before;
+          sndClick();
+          $("priceNow").textContent = now;
+          var mv = $("priceMove");
+          if(step > 0){ mv.textContent = "▲ Up $" + step + " today"; mv.className = "move up"; }
+          else if(step < 0){ mv.textContent = "▼ Down $" + Math.abs(step) + " today"; mv.className = "move down"; }
+          else { mv.textContent = "— No change today"; mv.className = "move"; }
+          var bucket = step >= 6 ? "bigUp" : step >= 1 ? "up" : step === 0 ? "flat" : step >= -5 ? "down" : "bigDown";
+          var msg = pick(DAY_EVENTS[bucket]);
+          // IV crush: wild hype pops on day 3 in Level 3 (and only there)
+          if(G.level === 2 && G.hype && G.hype.id === "wild" && G.day === 3 && isBuyer() && !G.crushed){
+            G.crushed = true; G.crushPenalty = 7;
+            msg = "💥 POP! The hype bubble burst — everyone's suddenly calm. Tickets everywhere just got cheaper, including yours. That instant deflate is an IV CRUSH. (Your ticket lost about 7 coins of hype value.)";
+            learn("volatility");
+          }
+          flashEvent(msg);
+          setMouth(step >= 4 ? "wow" : step <= -4 ? "sad" : "smile");
+          if(G.strategy !== "holdshares") updateMeter();
+          drawChart(); renderPlaying(); renderStats();
+        }
+
+        function skipRound(){
+          G.played++; G.skips++;
+          flashEvent("");
+          showResult({
+            kind:"flat", title:"Smart and chill 😴", net:0,
+            body:"You sat this one out, so your coins stayed exactly where they were. The price ended at $" + G.path[5] + " — sometimes watching from the hammock is the winning move.",
+            learnText:"<b>Real-world echo:</b> nobody has to trade. Skipping a round you don't understand is a strategy all by itself."
+          });
+        }
+
+        function settleHold(){
+          var pl = Math.round((G.path[5] - G.startPrice) * 2);
+          G.coins += pl;
+          finishRound(pl, "holdshares");
+        }
+
+        // payout: for buyers = ticket value returned; for sellers = share/condor payout (may be negative). Premium was already applied at entry.
+        function settle(payout){
+          G.coins += payout;
+          var net = payout - G.paidNet;
+          finishRound(net, G.strategy);
+        }
+
+        function finishRound(net, strat){
+          var finalPrice = G.path[G.day];
+          var kind, title, body, learnText;
+          if(net > 0){
+            kind = "win"; G.wins++; G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+            title = pick(["You did it! 🎉","Winner winner! 🌈","Confetti time! 🎊"]);
+            sndWin(); confetti(); setMouth("wow");
+          } else if(net === 0){
+            kind = "flat"; G.streak = 0; title = "Perfectly even! ⚖️"; setMouth("smile");
+          } else {
+            kind = "lose"; G.streak = 0;
+            title = pick(["Not this time — and that's OK 💛","The market wiggled the other way 🌤️","Ooh, so close! 🫧"]);
+            sndLose(); setMouth("sad");
+            $("mascot").classList.remove("shake"); void $("mascot").offsetWidth; $("mascot").classList.add("shake");
+          }
+          G.bestNet = Math.max(G.bestNet, net);
+
+          if(strat === "long"){
+            body = net > 0
+              ? "Your ticket paid out. " + (G.cashedOut ? "Smart cash-out — you grabbed the value before the melt (or a wobble) could take it." : "The price finished at $" + finalPrice + " vs your $" + G.strike + " target — past the target is where tickets sing.")
+              : "The price ended at $" + finalPrice + " vs your $" + G.strike + " target. Here's the happy part: the ticket price was the most you could ever lose, and you knew it before you started.";
+            learnText = G.level === 2
+              ? "<b>Hype lesson:</b> you played a " + (G.dir === "up" ? "CALL" : "PUT") + " in a " + G.hype.id + " week. " + (G.hype.id === "wild" ? "Pricey hype tickets need a monster move — and the mid-week pop (IV crush) hurts even when you're right about direction." : G.hype.id === "calm" ? "Cheap calm-week tickets are bargains: a normal move can pay off handsomely because you paid so little." : "Fairly priced tickets reward a good direction call, plain and simple.")
+              : "<b>You just played a " + (G.dir === "up" ? "CALL" : "PUT") + ":</b> direction + target (strike), ticket price (premium), last day (expiry), daily drip (theta). That is the whole skeleton of every option ever.";
+          } else if(strat === "spread"){
+            body = net > 0
+              ? "Your team paid out" + (intrinsicAt(finalPrice) >= G.cap ? " its MAXIMUM of " + G.cap + " coins — the price reached your sold teammate's line and the ceiling kicked in, exactly as designed." : ". The price finished at $" + finalPrice + ", inside your team's money zone.")
+              : "The price ended at $" + finalPrice + ". Your team needed it past $" + G.strike + (G.dir === "up" ? " (up)" : " (down)") + ". The loss was capped at your " + G.premiumShown + "-coin team cost — and notice how much gentler the melt felt than a solo ticket.";
+            learnText = "<b>SPREADS, felt:</b> cheaper entry + slower melt, in exchange for a ceiling (" + G.cap + " coins here). Spreads are how traders say 'I think it moves a bit, not a lot.' The speed of your ticket's value per $1 of price? That's DELTA.";
+          } else if(strat === "covered"){
+            body = net > 0
+              ? "You kept the " + G.collected + " coins you collected, and your shares finished at $" + finalPrice + (finalPrice > G.strike ? " — above your $" + G.strike + " line, so they were called away at $" + G.strike + ". You sold the extra rocket ride… and got paid to do it." : ", under your line, so you keep them AND the money.")
+              : "Your shares fell to $" + finalPrice + " and that fall cost more than the " + G.collected + " coins you collected. The premium cushioned the drop — it just wasn't a big enough cushion this week. Covered calls soften falls; they don't erase them.";
+            learnText = "<b>COVERED CALL, felt:</b> selling a ticket on shares you own = instant income + a ceiling on those shares. Lovely in calm weeks, bittersweet in rocket weeks. (Its cousin, the CASH-SECURED PUT, is the same trick flipped: sell a DOWN ticket and keep cash ready to buy shares at the line.)";
+            learn("covered");
+          } else if(strat === "condor"){
+            var inside = finalPrice >= G.zoneLow && finalPrice <= G.zoneHigh;
+            body = inside
+              ? "The price parked at $" + finalPrice + " — smack inside your $" + G.zoneLow + "–$" + G.zoneHigh + " zone. You keep every one of the " + G.collected + " coins you collected. Boring week, beautiful pay."
+              : "The price escaped to $" + finalPrice + ", outside your $" + G.zoneLow + "–$" + G.zoneHigh + " zone. The escape cost you part of what you collected — and your safety wings stopped it at the promised worst case. No surprises, even in the loss.";
+            learnText = "<b>IRON CONDOR, felt:</b> you got paid for correctly calling 'nothing much happens.' Max win (stay in zone) and max loss (wings) were both known before the week started. Sellers love calm; big news is their storm.";
+            learn("condor");
+          } else if(strat === "holdshares"){
+            body = net >= 0
+              ? "No ticket, no ceiling — your shares rode the price all the way to $" + finalPrice + " and you kept every coin of it. This week, doing nothing extra was the winner."
+              : "Your shares drifted down to $" + finalPrice + " and there was no premium cushion to soften it. That's the trade the ticket-sellers make: a little income now in exchange for a ceiling later.";
+            learnText = "<b>The baseline:</b> plain shares have no expiry, no melt, no ceiling — and no cushion. Every options trick in this game is a way of reshaping THIS ride.";
+          }
+          showResult({ kind:kind, title:title, body:body, net:net, learnText:learnText });
+        }
+
+        /* ================= RESULT / PROGRESSION ================= */
+        function showResult(r){
+          G.phase = "result";
+          play.innerHTML = "";
+          $("ticketMeter").classList.remove("show");
+          var isLastRoundOfLevel = G.roundInLevel >= ROUNDS_PER_LEVEL;
+          var isFinalLevel = G.level >= LEVELS.length - 1;
+          var btnLabel = !isLastRoundOfLevel ? "Next round → Round " + (G.roundInLevel + 1)
+            : isFinalLevel ? "See my journey results 🏆"
+            : "Finish Level " + (G.level + 1) + " →";
+          var box = $("resultBox");
+          box.className = "result show " + r.kind;
+          box.innerHTML =
+            '<h3>' + r.title + '</h3>' +
+            (typeof r.net === "number" ? '<div class="net">' + (r.net > 0 ? "+" + r.net : r.net) + ' coins this round · You now have 🪙 ' + G.coins + '</div>' : '') +
+            '<p>' + r.body + '</p>' +
+            (r.learnText ? '<div class="learnbox">' + r.learnText + '</div>' : '') +
+            '<div class="btnrow"><button class="bigbtn" type="button" id="nextRoundBtn">' + btnLabel + '</button></div>';
+          renderStats();
+          $("nextRoundBtn").addEventListener("click", function(){
+            sndClick();
+            if(!isLastRoundOfLevel){ G.roundInLevel++; startRound(); }
+            else if(isFinalLevel){ showJourneyOver(); return; }
+            else { showLevelComplete(); return; }
+            window.scrollTo({ top:0, behavior:"smooth" });
+          });
+          box.scrollIntoView({ behavior:"smooth", block:"nearest" });
+        }
+
+        function showLevelComplete(){
+          play.innerHTML = "";
+          $("resultBox").className = "result"; $("resultBox").innerHTML = "";
+          var done = lvl(), next = LEVELS[G.level + 1];
+          play.innerHTML =
+            '<div style="text-align:center;padding:10px 0 4px">' +
+              '<div style="font-size:52px" aria-hidden="true">🎉</div>' +
+              '<h2 class="step-title">Level ' + (G.level + 1) + ' cleared: ' + done.name + '!</h2>' +
+              '<p class="step-sub" style="max-width:520px;margin:0 auto 14px">You now have 🪙 ' + G.coins + ' coins and a brand-new trick in your pocket.</p>' +
+              '<div class="newword" style="text-align:left;max-width:560px;margin:0 auto 16px">Next up — <b>' + next.icon + ' Level ' + (G.level + 2) + ': ' + next.name + '.</b> ' + next.adds + '</div>' +
+              '<button class="bigbtn" type="button" id="nextLvlBtn">Unlock Level ' + (G.level + 2) + ' ▶</button>' +
+            '</div>';
+          confetti(); sndLevel();
+          $("nextLvlBtn").addEventListener("click", function(){
+            sndPop();
+            G.level++; G.roundInLevel = 1;
+            renderStats(); showLevelIntro();
+          });
+          play.scrollIntoView({ behavior:"smooth", block:"center" });
+        }
+
+        function showJourneyOver(){
+          play.innerHTML = "";
+          $("resultBox").className = "result"; $("resultBox").innerHTML = "";
+          var rank, blurb;
+          if(G.coins >= 200){ rank = "🌈 Rainbow Master — Legend Tier"; blurb = "Coins AND the full toolkit. You didn't just finish the levels, you finished ahead while using every strategy in the game."; }
+          else if(G.coins >= 130){ rank = "🌈 Rainbow Master"; blurb = "You cleared all six levels and finished ahead. You have genuinely used every core options strategy there is — with your own (play) money on the line."; }
+          else if(G.coins >= 80){ rank = "🌈 Rainbow Master — Survivor Tier"; blurb = "The market wiggled hard, but you used every tool and kept most of your coins. Knowing WHEN each strategy loses is most of the skill — and you felt all of it."; }
+          else { rank = "🌈 Rainbow Master — Brave Tier"; blurb = "Rough markets, full education. Every loss in this game was a tuition payment with the price known upfront. Play the journey again and watch how differently it goes now that you know the tricks."; }
+          $("rankText").textContent = rank;
+          $("rankBlurb").textContent = blurb;
+          $("syllabus").innerHTML =
+            "<b>Everything you now know, because you played it:</b><br />" +
+            "🎟️ Calls &amp; puts — direction tickets with a strike, a premium, and an expiry<br />" +
+            "⏳ Theta — tickets melt every day, and cashing out is racing the melt<br />" +
+            "👯 Spreads — a bought ticket + a sold ticket: cheaper, calmer, capped<br />" +
+            "📈 Delta — how fast a ticket's value follows the price<br />" +
+            "🎈 Volatility (IV) — hype makes tickets pricey, and an IV crush deflates them<br />" +
+            "🌻 Covered calls — own shares, sell tickets on them, pocket income, cap the upside<br />" +
+            "🎯 Iron condors — get paid when price stays in a zone, wings cap the worst case<br />" +
+            "🌈 Strategy fit — the real skill is matching the tool to the week";
+          $("finalStats").innerHTML =
+            '<span class="pill">🪙 Final coins <span class="big">' + G.coins + '</span></span>' +
+            '<span class="pill">⭐ Rounds won <span class="big">' + G.wins + " / " + G.played + '</span></span>' +
+            '<span class="pill">🔥 Best streak <span class="big">' + G.bestStreak + '</span></span>' +
+            '<span class="pill">🎉 Best round <span class="big">' + (G.bestNet > 0 ? "+" + G.bestNet : G.bestNet) + '</span></span>' +
+            '<span class="pill">😴 Smart sit-outs <span class="big">' + G.skips + '</span></span>' +
+            '<span class="pill">🎓 Words collected <span class="big">' + Object.keys(learned).length + " / " + TERMS.length + '</span></span>';
+          $("gameOver").classList.add("show");
+          G.finished = true; renderLevelMap();
+          $("lvlBadge").textContent = "🌈 Journey complete — all 6 levels cleared!";
+          confetti(); sndLevel();
+          $("gameOver").scrollIntoView({ behavior:"smooth", block:"center" });
+        }
+
+        $("againBtn").addEventListener("click", function(){
+          sndClick(); newGame();
+          window.scrollTo({ top:0, behavior:"smooth" });
+        });
+        $("authForm").addEventListener("submit", handleAuthSubmit);
+        $("showPlayerBarBtn").addEventListener("click", function(){ $("playerBar").hidden = false; $("showPlayerBarBtn").hidden = true; renderPlayerBar(); $("playerBar").scrollIntoView({behavior:"smooth", block:"center"}); });
+
+        function loadGameFromSave(save){
+          if(!save){ newGame(); return; }
+          G = { coins: (typeof save.coins === "number" ? save.coins : 100), level: save.level || 0, roundInLevel: save.roundInLevel || 1, streak: save.streak || 0, bestStreak: save.bestStreak || 0, wins: save.wins || 0, played: save.played || 0, bestNet: save.bestNet || 0, skips: save.skips || 0,
+                phase:"intro", startPrice:50, path:[], day:0, hint:0,
+                strategy:null, dir:null, strike:0, strike2:0, zoneLow:0, zoneHigh:0,
+                paidNet:0, premiumShown:0, mult:3, meltPerDay:0, cap:0, maxLoss:0, collected:0,
+                hype:null, crushPenalty:0, crushed:false, scenario:null, cashedOut:false, holding:false, finished: !!save.finished };
+          learned = save.learned || {}; renderChips();
+          $("gameOver").classList.remove("show");
+          renderPlayerBar();
+          if(G.finished){ renderStats(); showJourneyOver(); }
+          else { renderLevelMap(); showLevelIntro(); }
+        }
+
+        renderChips();
+        var savedProf = currentProfile();
+        if(savedProf && savedProf.save && (savedProf.save.played > 0 || savedProf.save.level > 0 || savedProf.save.finished)){
+          loadGameFromSave(savedProf.save);
+        } else {
+          newGame();
+          renderPlayerBar();
+          if(savedProf) persistProgress();
+        }
+      })();
+    </script>
+  </body>
+</html>
